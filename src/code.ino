@@ -2,10 +2,23 @@
 */
 #define False  0
 #define True  1
-int button = 7;                               // The pin # to the play button.
+
+int button = 7;                                 // The pin # to the play button.
 int LEDLight = 6;                               // The pin # to the LED light.
 int speakerPin = 8 ;                            // The pin to the signal.
-bool isDeviceRunning = False;                            // The flag to indicate if the machine is on.
+
+
+// device status enum
+typedef enum enum_deviceStatus { 
+  IDLEING = 10,
+  RUN = 11,
+  CANCEL = 12,
+  DONE = 13
+}deviceStatus;
+
+deviceStatus state = IDLEING;                      // Default State
+
+
 
 int CANCEL_WAIT_DURATION = 2000;
 
@@ -13,11 +26,11 @@ int CANCEL_WAIT_DURATION = 2000;
  Function to run setup and initializations.
 */
 void setup() {
-  Serial.begin(9600);                           // Initialize Serial.
-  pinMode(button, INPUT_PULLUP);      // 
-  pinMode(LEDLight, OUTPUT);
-  pinMode(speakerPin, OUTPUT);
-  digitalWrite(LEDLight, LOW);
+  Serial.begin(9600);               // Initialize Serial.
+  pinMode(button, INPUT_PULLUP);    // Initialize Button  
+  pinMode(LEDLight, OUTPUT);        // default Button
+  pinMode(speakerPin, OUTPUT);      // Initialize Speaker
+  digitalWrite(LEDLight, LOW);      // default LED
 }
 
 
@@ -26,6 +39,33 @@ void setup() {
 */
 void loop() {
   // PRECONDITION: idle mode (not started).
+  // State Machine Transition
+  switch(state){
+    case IDLEING:    if ButtonShort(): state = RUN; break;
+    case RUN:     if ButtonLong(): state = CANCEL; 
+                  else if checktime(): state = DONE; break;  // if time >= time_set
+    case CANCEL:  if ButtonShort() || ButtonLong(): state = IDLEING; break;
+    case DONE:    if ButtonShort() || ButtonLong(): state = IDLEING; break;
+    default:      state = IDLE;
+  }
+
+  if (state == IDLE){
+    // TODO: set everything to not work
+  }
+
+  if (state == RUN){
+    // TODO: set everything running
+  }
+
+  if (state == CANCEL){
+    // TODO: set cancel mode
+  }
+
+  if (state == DONE){
+    // TODO: set done mode
+  }
+
+  /*
   // EFFECT: Don't do anything.
   if (!isDeviceRunning && !isButtonPressed()) {
     delay(100);
@@ -70,6 +110,8 @@ void loop() {
     Serial.print("Device deactivation: CANCELLED...\n");
     return;
   }
+  */
+ 
   
   return;
 }
@@ -81,6 +123,18 @@ void loop() {
 /*
 Checks if the button is pressed.
 */
+void checktime(){
+  // TODO
+}
+
+void ButtonShort(){
+  // TODO
+}
+
+void ButtonLong(){
+  //  TODO
+}
+
 bool isButtonPressed() {
   return digitalRead(button) == LOW;
 }
